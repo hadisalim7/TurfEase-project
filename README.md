@@ -20,5 +20,3 @@ TurfEase is a Java-based application designed to simplify turf booking for sport
 - MySQL (Database)
 - VS Code
 - GitHub for Version Control
-
-## Repository Structure
