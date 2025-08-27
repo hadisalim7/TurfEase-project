@@ -1,0 +1,10 @@
+TurfEase Database Plan (Initial)
+--------------------------------
+Tables to be created:
+1. Users – store user details (name, email, password)
+2. Turfs – store turf details (name, location, type)
+3. Bookings – store bookings (user, turf, date, time)
+4. Payments – store payment details (booking ID, amount, status)
+
+Database Type: MySQL
+Connection: Localhost (to be set up later)
