@@ -1,6 +1,7 @@
 {
     "java.project.sourcePaths": [
-        "src"
+        "src",
+        "frontend"
     ],
     "java.project.referencedLibraries": [
         "lib\\mysql-connector-j-9.4.0.jar"
