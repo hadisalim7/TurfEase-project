@@ -1,87 +1,84 @@
 package com.turfease.frontend;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.sql.*;
 
 public class RegisterPage extends JFrame {
 
-    // Declare form components
-    private JTextField nameField;
-    private JTextField emailField;
-    private JPasswordField passwordField;
-    private JTextField phoneField;
-    private JButton registerButton;
-    private JButton backButton;
-
     public RegisterPage() {
-        // Window title
-        setTitle("TurfEase - Register");
-        setSize(350, 300);
+        setTitle("Register Page");
+        setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // center the window
+        setLayout(new GridLayout(5, 2, 10, 10));
 
-        // Main panel layout
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 2, 10, 10)); // rows, cols, hgap, vgap
-        add(panel);
+        JLabel nameLabel = new JLabel("Name:");
+        JTextField nameField = new JTextField();
 
-        // Labels and Fields
-        panel.add(new JLabel("Name:"));
-        nameField = new JTextField();
-        panel.add(nameField);
+        JLabel emailLabel = new JLabel("Email:");
+        JTextField emailField = new JTextField();
 
-        panel.add(new JLabel("Email:"));
-        emailField = new JTextField();
-        panel.add(emailField);
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordField = new JPasswordField();
 
-        panel.add(new JLabel("Password:"));
-        passwordField = new JPasswordField();
-        panel.add(passwordField);
+        JLabel phoneLabel = new JLabel("Phone:");
+        JTextField phoneField = new JTextField();
 
-        panel.add(new JLabel("Phone:"));
-        phoneField = new JTextField();
-        panel.add(phoneField);
+        JButton registerButton = new JButton("Register");
 
-        // Register button
-        registerButton = new JButton("Register");
-        panel.add(registerButton);
+        add(nameLabel);
+        add(nameField);
+        add(emailLabel);
+        add(emailField);
+        add(passwordLabel);
+        add(passwordField);
+        add(phoneLabel);
+        add(phoneField);
+        add(new JLabel());
+        add(registerButton);
 
-        // Back button
-        backButton = new JButton("Back to Login");
-        panel.add(backButton);
-
-        // Register button action
+        // Database insert logic
         registerButton.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 String name = nameField.getText();
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
                 String phone = phoneField.getText();
 
-                // For now, just show entered data
-                JOptionPane.showMessageDialog(null,
-                        "Registered Successfully!\nName: " + name +
-                                "\nEmail: " + email +
-                                "\nPhone: " + phone);
+                if (name.isEmpty() || email.isEmpty() || password.isEmpty() || phone.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Fill all fields");
+                    return;
+                }
+
+                try (Connection conn = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123");
+                     PreparedStatement stmt = conn.prepareStatement(
+                             "INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)")) {
+
+                    stmt.setString(1, name);
+                    stmt.setString(2, email);
+                    stmt.setString(3, password);
+                    stmt.setString(4, phone);
+
+                    int rows = stmt.executeUpdate();
+
+                    if (rows > 0) {
+                        JOptionPane.showMessageDialog(null, "Registration Successful!");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Registration Failed!");
+                    }
+
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Database Error!");
+                }
             }
         });
 
-        // Back button action
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose(); // Close current window
-                new LoginPage().setVisible(true); // Open login page
-            }
-        });
+        setVisible(true);
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new RegisterPage().setVisible(true);
-        });
+        SwingUtilities.invokeLater(RegisterPage::new);
     }
 }
