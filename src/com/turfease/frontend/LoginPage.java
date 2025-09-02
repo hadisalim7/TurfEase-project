@@ -1,70 +1,73 @@
 package com.turfease.frontend;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 
-public class LoginPage extends JFrame {
-
-    public LoginPage() {
-        setTitle("Login Page");
-        setSize(400, 300);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(3, 2, 10, 10));
+public class LoginPage {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("TurfEase Login");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new GridLayout(4, 2));
 
         JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField();
-
         JLabel passwordLabel = new JLabel("Password:");
         JPasswordField passwordField = new JPasswordField();
-
         JButton loginButton = new JButton("Login");
 
-        add(emailLabel);
-        add(emailField);
-        add(passwordLabel);
-        add(passwordField);
-        add(new JLabel());
-        add(loginButton);
+        frame.add(emailLabel);
+        frame.add(emailField);
+        frame.add(passwordLabel);
+        frame.add(passwordField);
+        frame.add(new JLabel()); // Empty for spacing
+        frame.add(loginButton);
 
-        // Database login logic
+        // Action on button click
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String email = emailField.getText();
                 String password = new String(passwordField.getPassword());
 
-                if (email.isEmpty() || password.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Enter all fields");
-                    return;
-                }
-
                 try (Connection conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123");
-                     PreparedStatement stmt = conn.prepareStatement(
-                             "SELECT * FROM users WHERE email = ? AND password = ?")) {
+                        "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123")) {
 
+                    String query = "SELECT role FROM users WHERE email=? AND password=?";
+                    PreparedStatement stmt = conn.prepareStatement(query);
                     stmt.setString(1, email);
                     stmt.setString(2, password);
-
                     ResultSet rs = stmt.executeQuery();
 
                     if (rs.next()) {
-                        JOptionPane.showMessageDialog(null, "Login Successful!");
+                        String role = rs.getString("role");
+                        if (role.equals("admin")) {
+                            JOptionPane.showMessageDialog(frame, "Welcome Admin!");
+                            AdminDashboard.main(null);
+                            frame.dispose(); // close login window
+
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "Welcome User!");
+                            if (role.equals("admin")) {
+                                AdminDashboard.main(null);
+                            } else {
+                            UserDashboard.main(null);
+                            }
+                            frame.dispose();
+
+                            }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Invalid credentials!");
+                        JOptionPane.showMessageDialog(frame, "Invalid email or password!");
                     }
 
-                } catch (SQLException ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "Database Error!");
+                    JOptionPane.showMessageDialog(frame, "Database connection error!");
                 }
             }
         });
 
-        setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(LoginPage::new);
+        frame.setVisible(true);
     }
 }
