@@ -17,6 +17,11 @@ public class AdminDashboard {
         buttonPanel.setLayout(new GridLayout(3, 1, 10, 10));
 
         JButton addTurf = new JButton("Add New Turf");
+         addTurf.addActionListener(e -> {
+         AddTurfPage.main(null); // Correct way to open Add Turf page
+         });
+
+
         JButton manageBookings = new JButton("Manage Bookings");
         JButton logout = new JButton("Logout");
 
