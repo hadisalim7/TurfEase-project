@@ -2,72 +2,73 @@ package com.turfease.frontend;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.sql.*;
 
 public class LoginPage {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("TurfEase Login");
-        frame.setSize(400, 300);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(4, 2));
 
-        JLabel emailLabel = new JLabel("Email:");
+    public LoginPage() {
+        JFrame frame = new JFrame("Login - TurfEase");
+        frame.setSize(400, 250);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new GridLayout(3, 2, 10, 10));
+
         JTextField emailField = new JTextField();
-        JLabel passwordLabel = new JLabel("Password:");
         JPasswordField passwordField = new JPasswordField();
         JButton loginButton = new JButton("Login");
 
-        frame.add(emailLabel);
+        frame.add(new JLabel("Email:"));
         frame.add(emailField);
-        frame.add(passwordLabel);
+        frame.add(new JLabel("Password:"));
         frame.add(passwordField);
-        frame.add(new JLabel()); // Empty for spacing
+        frame.add(new JLabel());
         frame.add(loginButton);
 
-        // Action on button click
-        loginButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String email = emailField.getText();
-                String password = new String(passwordField.getPassword());
+        loginButton.addActionListener(e -> {
+            String email = emailField.getText();
+            String password = new String(passwordField.getPassword());
 
-                try (Connection conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123")) {
+            if (email.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please enter both email and password.");
+                return;
+            }
 
-                    String query = "SELECT role FROM users WHERE email=? AND password=?";
-                    PreparedStatement stmt = conn.prepareStatement(query);
-                    stmt.setString(1, email);
-                    stmt.setString(2, password);
-                    ResultSet rs = stmt.executeQuery();
+            try (Connection conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123");
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "SELECT user_id, role FROM users WHERE email=? AND password=?")) {
 
-                    if (rs.next()) {
-                        String role = rs.getString("role");
-                        if (role.equals("admin")) {
-                            JOptionPane.showMessageDialog(frame, "Welcome Admin!");
-                            AdminDashboard.main(null);
-                            frame.dispose(); // close login window
+                stmt.setString(1, email);
+                stmt.setString(2, password);
+                ResultSet rs = stmt.executeQuery();
 
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "Welcome User!");
-                            if (role.equals("admin")) {
-                                AdminDashboard.main(null);
-                            } else {
-                            UserDashboard.main(null);
-                            }
-                            frame.dispose();
+                if (rs.next()) {
+                    int userId = rs.getInt("user_id");
+                    String role = rs.getString("role");
 
-                            }
+                    // Store the logged-in user
+                    LoggedInUser.setUser(userId, role);
+
+                    JOptionPane.showMessageDialog(frame, "Login Successful!");
+                    frame.dispose();
+
+                    if ("admin".equalsIgnoreCase(role)) {
+                        AdminDashboard.main(null);
                     } else {
-                        JOptionPane.showMessageDialog(frame, "Invalid email or password!");
+                        UserDashboard.main(null);
                     }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(frame, "Database connection error!");
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid email or password!");
                 }
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(frame, "Database Error: " + ex.getMessage());
             }
         });
 
         frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new LoginPage();
     }
 }
