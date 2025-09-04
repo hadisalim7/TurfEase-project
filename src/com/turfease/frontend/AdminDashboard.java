@@ -10,20 +10,24 @@ public class AdminDashboard {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        JLabel title = new JLabel("Welcome, Admin!", SwingConstants.CENTER);
+        int adminId = LoggedInUser.getUserId();
+        JLabel title = new JLabel("Welcome, Admin (ID: " + adminId + ")", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(3, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 10));
 
         JButton addTurf = new JButton("Add New Turf");
-         addTurf.addActionListener(e -> {
-         AddTurfPage.main(null); // Correct way to open Add Turf page
-         });
-
+        addTurf.addActionListener(e -> AddTurfPage.main(null));
 
         JButton manageBookings = new JButton("Manage Bookings");
+        manageBookings.addActionListener(e -> ManageBookingsPage.main(null));
+
         JButton logout = new JButton("Logout");
+        logout.addActionListener(e -> {
+            LoggedInUser.logout();
+            frame.dispose();
+            LoginPage.main(null);
+        });
 
         buttonPanel.add(addTurf);
         buttonPanel.add(manageBookings);
@@ -31,13 +35,6 @@ public class AdminDashboard {
 
         frame.add(title, BorderLayout.NORTH);
         frame.add(buttonPanel, BorderLayout.CENTER);
-
-        logout.addActionListener(e -> {
-            JOptionPane.showMessageDialog(frame, "Logging out...");
-            frame.dispose(); // Close admin window
-            LoginPage.main(null); // Back to login page
-        });
-
         frame.setVisible(true);
     }
 }
