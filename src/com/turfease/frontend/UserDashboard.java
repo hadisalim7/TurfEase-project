@@ -15,7 +15,17 @@ public class UserDashboard {
 
         JPanel buttonPanel = new JPanel(new GridLayout(3, 1, 10, 10));
         JButton viewTurfs = new JButton("View Turfs");
+        viewTurfs.addActionListener(e -> {
+        frame.dispose();
+     ViewTurfsPage.main(null);
+     });
+
         JButton myBookings = new JButton("My Bookings");
+        myBookings.addActionListener(e -> {
+        frame.dispose();
+        MyBookingsPage.main(null); 
+        });
+
         JButton logout = new JButton("Logout");
 
         logout.addActionListener(e -> {
