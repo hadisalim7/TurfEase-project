@@ -22,6 +22,11 @@ public class AdminDashboard {
         JButton manageBookings = new JButton("Manage Bookings");
         manageBookings.addActionListener(e -> ManageBookingsPage.main(null));
 
+        JButton selfBooking = new JButton("Self Booking");
+        selfBooking.addActionListener(e -> SelfBookingPage.main(null));
+        buttonPanel.add(selfBooking);
+
+
         JButton logout = new JButton("Logout");
         logout.addActionListener(e -> {
             LoggedInUser.logout();
