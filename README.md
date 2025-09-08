@@ -7,7 +7,7 @@ TurfEase is a Java-based application designed to simplify turf booking for sport
 ## Team Members
 - Hadi (Leader)
 - Abhijith
-- Mazin
+- Maazin
 - Alok
 
 ## Project Phases
