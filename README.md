@@ -12,8 +12,8 @@ TurfEase is a Java-based application designed to simplify turf booking for sport
 
 ## Project Phases
 - Phase 1 & 2: Design documents (Completed)
-- Phase 3: Prototype & Core Module Development (In Progress)
-- Phase 4: Final Implementation & Testing (Upcoming)
+- Phase 3: Prototype & Core Module Development (completed)
+- Phase 4: Final Implementation & Testing (In progress)
 
 ## Tech Stack
 - Java
