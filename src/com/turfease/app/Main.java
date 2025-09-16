@@ -1,7 +1,10 @@
 package com.turfease.app;
 
+import com.turfease.frontend.SplashScreen;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println("completed phase 3");
+        // Start app with SplashScreen
+        new SplashScreen();
     }
 }
