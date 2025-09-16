@@ -30,7 +30,7 @@ public class SplashScreen extends JFrame {
         panel.add(title, BorderLayout.CENTER);
 
         // Footer text
-        JLabel footer = new JLabel("Welcome to Turf Booking App", SwingConstants.CENTER);
+        JLabel footer = new JLabel("Welcome to Turf Booking System", SwingConstants.CENTER);
         footer.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         footer.setForeground(Color.LIGHT_GRAY);
         panel.add(footer, BorderLayout.SOUTH);
