@@ -3,9 +3,9 @@ package com.turfease.frontend;
 import javax.swing.*;
 import java.awt.*;
 
-public class Homepage_test {
+public class Homepage {
 
-    public Homepage_test() {
+    public Homepage() {
         createAndShowGUI();
     }
 
@@ -93,6 +93,6 @@ public class Homepage_test {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new Homepage_test());
+        SwingUtilities.invokeLater(() -> new Homepage());
     }
 }
