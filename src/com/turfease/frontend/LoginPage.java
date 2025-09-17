@@ -4,33 +4,75 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
-public class LoginPage {
+public class LoginPage extends JFrame {
 
     public LoginPage() {
-        JFrame frame = new JFrame("Login - TurfEase");
-        frame.setSize(400, 250);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new GridLayout(3, 2, 10, 10));
+        setTitle("Login - TurfEase");
+        setSize(700, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new GridLayout(1, 2)); // Split into 2 halves
 
+        // Left side (Image panel)
+        JPanel leftPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon img = new ImageIcon("resources/football.jpg"); // put your football image in resources folder
+                g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+
+        // Right side (Form panel)
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBackground(Color.WHITE);
+
+        // Header
+        JPanel header = new JPanel();
+        header.setBackground(new Color(0, 102, 0));
+        JLabel title = new JLabel("Login to TurfEase");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(Color.WHITE);
+        header.add(title);
+        rightPanel.add(header, BorderLayout.NORTH);
+
+        // Form
+        JPanel formPanel = new JPanel(new GridLayout(3, 2, 10, 15));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        JLabel emailLabel = new JLabel("Email:");
         JTextField emailField = new JTextField();
+        JLabel passLabel = new JLabel("Password:");
         JPasswordField passwordField = new JPasswordField();
         JButton loginButton = new JButton("Login");
 
-        frame.add(new JLabel("Email:"));
-        frame.add(emailField);
-        frame.add(new JLabel("Password:"));
-        frame.add(passwordField);
-        frame.add(new JLabel());
-        frame.add(loginButton);
+        loginButton.setBackground(new Color(34, 139, 34));
+        loginButton.setForeground(Color.WHITE);
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
+        formPanel.add(emailLabel);
+        formPanel.add(emailField);
+        formPanel.add(passLabel);
+        formPanel.add(passwordField);
+        formPanel.add(new JLabel()); 
+        formPanel.add(loginButton);
+
+        rightPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Footer
+        JPanel footer = new JPanel();
+        footer.setBackground(new Color(189, 195, 199));
+        JLabel credits = new JLabel("© 2025 TurfEase");
+        footer.add(credits);
+        rightPanel.add(footer, BorderLayout.SOUTH);
+
+        // Add both panels to frame
+        add(leftPanel);
+        add(rightPanel);
+
+        // Action
         loginButton.addActionListener(e -> {
             String email = emailField.getText();
             String password = new String(passwordField.getPassword());
-
-            if (email.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Please enter both email and password.");
-                return;
-            }
 
             try (Connection conn = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123");
@@ -44,31 +86,24 @@ public class LoginPage {
                 if (rs.next()) {
                     int userId = rs.getInt("user_id");
                     String role = rs.getString("role");
-
-                    // Store the logged-in user
                     LoggedInUser.setUser(userId, role);
 
-                    JOptionPane.showMessageDialog(frame, "Login Successful!");
-                    frame.dispose();
-
+                    JOptionPane.showMessageDialog(this, "Login Successful!");
+                    dispose();
                     if ("admin".equalsIgnoreCase(role)) {
                         AdminDashboard.main(null);
                     } else {
                         UserDashboard.main(null);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(frame, "Invalid email or password!");
+                    JOptionPane.showMessageDialog(this, "Invalid email or password!");
                 }
 
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(frame, "Database Error: " + ex.getMessage());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
         });
 
-        frame.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new LoginPage();
+        setVisible(true);
     }
 }
