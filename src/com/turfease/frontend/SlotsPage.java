@@ -3,56 +3,46 @@ package com.turfease.frontend;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
-import java.time.LocalTime;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SlotsPage {
-    public static void main(String[] args) {
-        if (args.length < 2) return;
+public class SlotsPage extends JFrame {
+    public SlotsPage(int turfId, String turfName) {
+        setTitle("Slots for " + turfName);
+        setSize(650, 450);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        int turfId = Integer.parseInt(args[0]);
-        String turfName = args[1];
-
-        JFrame frame = new JFrame("Slots for " + turfName);
-        frame.setSize(650, 450);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-
-        // Top panel for date selection
         JPanel topPanel = new JPanel(new FlowLayout());
         JTextField dateField = new JTextField(LocalDate.now().toString(), 10);
         JButton loadSlotsButton = new JButton("Load Slots");
         topPanel.add(new JLabel("Select Date (YYYY-MM-DD):"));
         topPanel.add(dateField);
         topPanel.add(loadSlotsButton);
-        frame.add(topPanel, BorderLayout.NORTH);
+        add(topPanel, BorderLayout.NORTH);
 
-        // Slots panel
         JPanel slotPanel = new JPanel(new GridLayout(3, 4, 10, 10));
-        frame.add(slotPanel, BorderLayout.CENTER);
+        add(slotPanel, BorderLayout.CENTER);
 
-        // Load initial slots for today
         loadSlots(slotPanel, turfId, dateField.getText());
 
-        // Reload slots when "Load Slots" is clicked
         loadSlotsButton.addActionListener(e ->
                 loadSlots(slotPanel, turfId, dateField.getText())
         );
 
-        frame.setVisible(true);
+        setVisible(true);
     }
 
-    private static void loadSlots(JPanel slotPanel, int turfId, String dateText) {
-        slotPanel.removeAll(); // Clear old slots
-
+    private void loadSlots(JPanel slotPanel, int turfId, String dateText) {
+        slotPanel.removeAll();
         List<LocalTime> bookedSlots = new ArrayList<>();
+
         String url = "jdbc:mysql://localhost:3306/turfease_db";
         String username = "root";
         String password = "hadi123";
 
-        // Fetch booked slots for that date
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             String query = "SELECT start_time FROM bookings WHERE turf_id=? AND booking_date=? AND status='booked'";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -66,7 +56,6 @@ public class SlotsPage {
             JOptionPane.showMessageDialog(slotPanel, "Error: " + ex.getMessage());
         }
 
-        // Create 12 slots from 9 AM – 9 PM
         for (int hour = 9; hour < 21; hour++) {
             LocalTime slotTime = LocalTime.of(hour, 0);
             JButton slotButton = new JButton(slotTime.toString());
@@ -93,7 +82,7 @@ public class SlotsPage {
                             ps.setString(6, "booked");
                             ps.executeUpdate();
                             JOptionPane.showMessageDialog(slotPanel, "Booking Confirmed!");
-                            loadSlots(slotPanel, turfId, dateText); // Refresh after booking
+                            loadSlots(slotPanel, turfId, dateText);
                         } catch (Exception ex2) {
                             JOptionPane.showMessageDialog(slotPanel, "Booking Failed: " + ex2.getMessage());
                         }
@@ -106,5 +95,9 @@ public class SlotsPage {
 
         slotPanel.revalidate();
         slotPanel.repaint();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new SlotsPage(1, "Demo Turf"));
     }
 }
