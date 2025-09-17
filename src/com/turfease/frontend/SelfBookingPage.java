@@ -43,22 +43,40 @@ public class SelfBookingPage extends JFrame {
 
             try (Connection conn = DriverManager.getConnection(url, username, password)) {
                 int turfId = getAdminTurfId(conn);
-                if(turfId == 0) {
+                if (turfId == 0) {
                     JOptionPane.showMessageDialog(this, "No turf found for this admin!");
                     return;
                 }
 
-                // Check if admin exists as a user, else create a dummy user
                 int userId = getOrCreateSelfBookingUser(conn, name, phone);
+                LocalTime startTime = LocalTime.parse(time);
+                LocalTime endTime = startTime.plusHours(1);
 
+                // --------- Availability Check ---------
+                String checkQuery = "SELECT COUNT(*) FROM bookings " +
+                        "WHERE turf_id=? AND booking_date=? " +
+                        "AND start_time < ? AND end_time > ? " +
+                        "AND status='booked'";
+                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                checkStmt.setInt(1, turfId);
+                checkStmt.setDate(2, java.sql.Date.valueOf(date));
+                checkStmt.setTime(3, java.sql.Time.valueOf(endTime));
+                checkStmt.setTime(4, java.sql.Time.valueOf(startTime));
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next() && rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(this, "Slot already booked!");
+                    return;
+                }
+
+                // --------- Insert Booking ---------
                 String query = "INSERT INTO bookings (user_id, turf_id, booking_date, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setInt(1, userId);
                 stmt.setInt(2, turfId);
                 stmt.setDate(3, java.sql.Date.valueOf(date));
-                LocalTime startTime = LocalTime.parse(time);
                 stmt.setTime(4, java.sql.Time.valueOf(startTime));
-                stmt.setTime(5, java.sql.Time.valueOf(startTime.plusHours(1)));
+                stmt.setTime(5, java.sql.Time.valueOf(endTime));
                 stmt.setString(6, "booked");
                 stmt.executeUpdate();
 
@@ -81,22 +99,20 @@ public class SelfBookingPage extends JFrame {
     }
 
     private int getOrCreateSelfBookingUser(Connection conn, String name, String phone) throws SQLException {
-        // Check if a user with this phone exists
         String check = "SELECT user_id FROM users WHERE phone=?";
         PreparedStatement stmt = conn.prepareStatement(check);
         stmt.setString(1, phone);
         ResultSet rs = stmt.executeQuery();
-        if(rs.next()) {
+        if (rs.next()) {
             return rs.getInt("user_id");
         } else {
-            // Create a new user
             String insert = "INSERT INTO users (name, phone) VALUES (?, ?)";
             PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, name);
             ps.setString(2, phone);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
-            if(keys.next()) return keys.getInt(1);
+            if (keys.next()) return keys.getInt(1);
             else throw new SQLException("Failed to create self-booking user!");
         }
     }
