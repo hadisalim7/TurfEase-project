@@ -7,30 +7,35 @@ public class HomePage extends JFrame {
 
     public HomePage() {
         setTitle("TurfEase - Home");
-        setSize(600, 450);
+        setSize(700, 400); // matches splash screen size
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
 
-        // Header
-        JPanel header = new JPanel();
-        header.setBackground(new Color(0, 102, 0));
-        JLabel title = new JLabel("Welcome to TurfEase");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        title.setForeground(Color.WHITE);
-        header.add(title);
-        add(header, BorderLayout.NORTH);
+        // Background panel with turf image
+        JPanel backgroundPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ImageIcon bg = new ImageIcon("resources/turf1.jpg"); // football turf image
+                g.drawImage(bg.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        backgroundPanel.setLayout(new GridBagLayout()); // to center card
 
-        // Center buttons
-        JPanel center = new JPanel();
-        center.setLayout(new BoxLayout(center, BoxLayout.Y_AXIS));
-        center.setBorder(BorderFactory.createEmptyBorder(80, 60, 80, 60));
-        center.setBackground(new Color(144, 238, 144));
+        // Card Panel (semi-transparent)
+        JPanel cardPanel = new JPanel();
+        cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
+        cardPanel.setBackground(new Color(255, 255, 255, 200)); // white with transparency
+        cardPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        JLabel title = new JLabel("Welcome to TurfEase", SwingConstants.CENTER);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JButton loginButton = new JButton("Login");
         JButton registerButton = new JButton("Register");
 
-        Font btnFont = new Font("Segoe UI", Font.BOLD, 22);
+        Font btnFont = new Font("Segoe UI", Font.BOLD, 16);
         loginButton.setFont(btnFont);
         registerButton.setFont(btnFont);
 
@@ -42,29 +47,29 @@ public class HomePage extends JFrame {
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        center.add(loginButton);
-        center.add(Box.createRigidArea(new Dimension(0, 20)));
-        center.add(registerButton);
+        // Add to card panel
+        cardPanel.add(title);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        cardPanel.add(loginButton);
+        cardPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+        cardPanel.add(registerButton);
 
+        // Place card in center
+        backgroundPanel.add(cardPanel, new GridBagConstraints());
+
+        // Add to frame
+        add(backgroundPanel);
+
+        // Actions
         loginButton.addActionListener(e -> {
             dispose();
-            new LoginPage();
+            new LoginPage(); // styled login
         });
 
         registerButton.addActionListener(e -> {
             dispose();
-            new RegisterPage();
+            new RegisterPage(); // styled register
         });
-
-        add(center, BorderLayout.CENTER);
-
-        // Footer
-        JPanel footer = new JPanel();
-        footer.setBackground(new Color(189, 195, 199));
-        JLabel credits = new JLabel("© 2025 TurfEase Project");
-        credits.setFont(new Font("Segoe UI", Font.ITALIC, 14));
-        footer.add(credits);
-        add(footer, BorderLayout.SOUTH);
 
         setVisible(true);
     }

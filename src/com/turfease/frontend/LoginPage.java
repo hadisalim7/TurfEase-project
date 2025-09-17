@@ -18,7 +18,7 @@ public class LoginPage extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                ImageIcon img = new ImageIcon("resources/football.jpg"); // put your football image in resources folder
+                ImageIcon img = new ImageIcon("resources/ronaldo1.jpg"); // put your football image in resources folder
                 g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
             }
         };

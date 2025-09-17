@@ -7,7 +7,7 @@ import java.sql.*;
 public class RegisterPage extends JFrame {
     public RegisterPage() {
         setTitle("Register - TurfEase");
-        setSize(750, 450);
+        setSize(700, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(1, 2)); // Two halves
@@ -17,7 +17,7 @@ public class RegisterPage extends JFrame {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                ImageIcon img = new ImageIcon("resources/football2.jpg"); 
+                ImageIcon img = new ImageIcon("resources/coach1.jpeg"); 
                 g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
             }
         };
