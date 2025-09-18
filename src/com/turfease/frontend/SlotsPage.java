@@ -16,7 +16,7 @@ public class SlotsPage extends JFrame {
         setLayout(new BorderLayout());
 
         JPanel topPanel = new JPanel(new FlowLayout());
-        JTextField dateField = new JTextField(LocalDate.now().toString(), 10);
+        JTextField dateField = new JTextField(LocalDate.now().toString(), 10); // default to today
         JButton loadSlotsButton = new JButton("Load Slots");
         topPanel.add(new JLabel("Select Date (YYYY-MM-DD):"));
         topPanel.add(dateField);
@@ -37,6 +37,21 @@ public class SlotsPage extends JFrame {
 
     private void loadSlots(JPanel slotPanel, int turfId, String dateText) {
         slotPanel.removeAll();
+
+        LocalDate selectedDate;
+        try {
+            selectedDate = LocalDate.parse(dateText);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(slotPanel, "Invalid date format!");
+            return;
+        }
+
+        // Prevent past dates
+        if (selectedDate.isBefore(LocalDate.now())) {
+            JOptionPane.showMessageDialog(slotPanel, "Cannot view slots for past dates!");
+            return;
+        }
+
         List<LocalTime> bookedSlots = new ArrayList<>();
 
         String url = "jdbc:mysql://localhost:3306/turfease_db";
@@ -66,6 +81,12 @@ public class SlotsPage extends JFrame {
             } else {
                 slotButton.setBackground(Color.GREEN);
                 slotButton.addActionListener(e -> {
+                    // Prevent booking past slots for today
+                    if (selectedDate.equals(LocalDate.now()) && slotTime.isBefore(LocalTime.now())) {
+                        JOptionPane.showMessageDialog(slotPanel, "Cannot book past time slots!");
+                        return;
+                    }
+
                     int confirm = JOptionPane.showConfirmDialog(slotPanel,
                             "Book this slot at " + slotTime + " on " + dateText + "?",
                             "Confirm Booking", JOptionPane.YES_NO_OPTION);
