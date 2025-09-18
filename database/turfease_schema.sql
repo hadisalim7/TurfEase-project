@@ -35,7 +35,7 @@ CREATE TABLE `bookings` (
   KEY `turf_id` (`turf_id`),
   CONSTRAINT `bookings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
   CONSTRAINT `bookings_ibfk_2` FOREIGN KEY (`turf_id`) REFERENCES `turfs` (`turf_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `bookings` (
 
 LOCK TABLES `bookings` WRITE;
 /*!40000 ALTER TABLE `bookings` DISABLE KEYS */;
-INSERT INTO `bookings` VALUES (1,1,2,'2025-09-06','09:00:00','10:00:00','cancelled'),(2,1,3,'2025-09-07','10:00:00','11:00:00','booked'),(3,4,2,'2025-09-08','10:00:00','11:00:00','booked'),(4,2,3,'2025-09-08','12:00:00','13:00:00','booked'),(5,5,2,'2025-09-09','11:00:00','12:00:00','booked'),(6,6,2,'2025-09-09','10:00:00','11:00:00','booked');
+INSERT INTO `bookings` VALUES (1,1,2,'2025-09-06','09:00:00','10:00:00','cancelled'),(2,1,3,'2025-09-07','10:00:00','11:00:00','booked'),(3,4,2,'2025-09-08','10:00:00','11:00:00','booked'),(4,2,3,'2025-09-08','12:00:00','13:00:00','booked'),(5,5,2,'2025-09-09','11:00:00','12:00:00','booked'),(6,6,2,'2025-09-09','10:00:00','11:00:00','booked'),(7,1,2,'2025-09-15','10:00:00','11:00:00','booked'),(8,1,3,'2025-09-17','10:00:00','11:00:00','cancelled'),(9,8,2,'2025-09-17','12:00:00','13:00:00','cancelled'),(10,2,3,'2025-09-17','13:00:00','14:00:00','booked'),(11,2,3,'2025-09-17','15:00:00','16:00:00','booked'),(12,3,2,'2025-09-17','09:00:00','10:00:00','cancelled'),(13,9,3,'2025-09-17','09:00:00','10:00:00','cancelled'),(14,1,3,'2025-09-17','09:00:00','10:00:00','cancelled'),(15,1,2,'2025-09-17','10:00:00','11:00:00','booked'),(16,10,2,'2025-09-17','09:00:00','10:00:00','booked'),(17,11,2,'2025-09-17','11:00:00','12:00:00','booked');
 /*!40000 ALTER TABLE `bookings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -122,7 +122,7 @@ CREATE TABLE `users` (
   `role` enum('user','admin') DEFAULT 'user',
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -131,7 +131,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'HadiSalim','sosocan124@gmail.com','mashaallah','7592021946','user'),(2,'Admin One','admin1@turfease.com','admin123','9999999991','admin'),(3,'Admin Two','admin2@turfease.com','admin456','9999999992','admin'),(4,'abijithbekal','0.2sosocan124@gmail.com','0.2mashaallah','9645373629','user'),(5,'rohan','popypes@gmail.com','rohan2020','9075569675','user'),(6,'shadil','xyz@gmail.com','password','1234567890','user'),(7,'sreenand','sreenand7@gmail.com','mashaallah','7592021946','user');
+INSERT INTO `users` VALUES (1,'HadiSalim','sosocan124@gmail.com','mashaallah','7592021946','user'),(2,'Admin One','admin1@turfease.com','admin123','9999999991','admin'),(3,'Admin Two','admin2@turfease.com','admin456','9999999992','admin'),(4,'abijithbekal','0.2sosocan124@gmail.com','0.2mashaallah','9645373629','user'),(5,'rohan','popypes@gmail.com','rohan2020','9075569675','user'),(6,'shadil','xyz@gmail.com','password','1234567890','user'),(7,'sreenand','sreenand7@gmail.com','mashaallah','7592021946','user'),(8,'ashrid','ashrid7@gmail.com','mashaallah','7592021946','user'),(9,'alokkk',NULL,NULL,'75757575775','user'),(10,'marjan','marjan7@gmail.com','mashaallah','7592021946','user'),(11,'athul',NULL,NULL,'7646464646','user');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -144,4 +144,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-10  1:30:56
+-- Dump completed on 2025-09-18 19:20:16
