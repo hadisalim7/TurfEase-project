@@ -27,26 +27,26 @@ public class AddTurfPage extends JFrame {
         String username = "root";
         String password = "hadi123";
 
-        // Check if admin already has a turf
-        try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            String checkQuery = "SELECT COUNT(*) FROM turfs WHERE admin_id = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-            checkStmt.setInt(1, LoggedInUser.getUserId());
-            ResultSet rs = checkStmt.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(this,
-                        "You already added a turf. Only one turf is allowed.",
-                        "Warning", JOptionPane.WARNING_MESSAGE);
-                // keep window open (don't dispose) so admin knows why
-                return;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "DB Error: " + ex.getMessage());
-        }
-
+        // Action when button clicked
         addButton.addActionListener(e -> {
             try (Connection conn = DriverManager.getConnection(url, username, password)) {
-                String query = "INSERT INTO turfs (turf_name, location, price_per_hour, photo_url, admin_id) VALUES (?, ?, ?, ?, ?)";
+                // Check if admin already has a turf
+                String checkQuery = "SELECT COUNT(*) FROM turfs WHERE admin_id = ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                checkStmt.setInt(1, LoggedInUser.getUserId());
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Show message, but don't close window
+                    JOptionPane.showMessageDialog(this,
+                            "Sorry, you can't add turf. Each admin is allowed only one turf.",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                    return; // stop here
+                }
+
+                // Insert new turf
+                String query = "INSERT INTO turfs (turf_name, location, price_per_hour, photo_url, admin_id) " +
+                               "VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setString(1, nameField.getText());
                 stmt.setString(2, locationField.getText());
@@ -56,7 +56,7 @@ public class AddTurfPage extends JFrame {
 
                 stmt.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Turf added successfully!");
-                dispose();
+                dispose(); // close only if added
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
