@@ -36,7 +36,7 @@ public class RegisterPage extends JFrame {
         rightPanel.add(header, BorderLayout.NORTH);
 
         // Form
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 15));
+        JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 15)); // 6 rows for Back + Register
         formPanel.setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
         JLabel nameLabel = new JLabel("Full Name:");
@@ -48,16 +48,22 @@ public class RegisterPage extends JFrame {
         JLabel phoneLabel = new JLabel("Phone:");
         JTextField phoneField = new JTextField();
 
+        JButton backButton = new JButton("Back");
+        backButton.setBackground(new Color(34, 139, 34));
+        backButton.setForeground(Color.WHITE);
+        backButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
         JButton registerButton = new JButton("Register");
         registerButton.setBackground(new Color(34, 139, 34));
         registerButton.setForeground(Color.WHITE);
         registerButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
+        // Add components to form panel
         formPanel.add(nameLabel); formPanel.add(nameField);
         formPanel.add(emailLabel); formPanel.add(emailField);
         formPanel.add(passLabel); formPanel.add(passwordField);
         formPanel.add(phoneLabel); formPanel.add(phoneField);
-        formPanel.add(new JLabel()); formPanel.add(registerButton);
+        formPanel.add(backButton); formPanel.add(registerButton);
 
         rightPanel.add(formPanel, BorderLayout.CENTER);
 
@@ -68,11 +74,17 @@ public class RegisterPage extends JFrame {
         footer.add(credits);
         rightPanel.add(footer, BorderLayout.SOUTH);
 
-        // Add both panels
+        // Add both panels to frame
         add(leftPanel);
         add(rightPanel);
 
-        // Action
+        // Back button action
+        backButton.addActionListener(e -> {
+            dispose(); // close register page
+            new HomePage(); // go back to home
+        });
+
+        // Register button action
         registerButton.addActionListener(e -> {
             String name = nameField.getText();
             String email = emailField.getText();
