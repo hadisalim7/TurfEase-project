@@ -10,7 +10,7 @@ public class SelfBookingPage extends JFrame {
 
     public SelfBookingPage() {
         setTitle("Self Booking - TurfEase");
-        setSize(450, 450);
+        setSize(500, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 10));
@@ -19,16 +19,16 @@ public class SelfBookingPage extends JFrame {
         JPanel header = new JPanel();
         header.setBackground(new Color(34, 153, 84));
         JLabel title = new JLabel("📅 Self Booking");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 26)); // bigger header
         title.setForeground(Color.WHITE);
         header.add(title);
         add(header, BorderLayout.NORTH);
 
-        // ===== Form Panel with vertical spacing =====
+        // ===== Form Panel =====
         JPanel formPanel = new JPanel();
         formPanel.setBackground(new Color(236, 240, 241));
         formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
         JTextField nameField = new JTextField();
         JTextField phoneField = new JTextField();
@@ -36,13 +36,13 @@ public class SelfBookingPage extends JFrame {
         JTextField timeField = new JTextField("09:00");
 
         formPanel.add(createFieldPanel("Customer Name:", nameField));
-        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(Box.createVerticalStrut(15));
         formPanel.add(createFieldPanel("Phone:", phoneField));
-        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(Box.createVerticalStrut(15));
         formPanel.add(createFieldPanel("Date (YYYY-MM-DD):", dateField));
-        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(Box.createVerticalStrut(15));
         formPanel.add(createFieldPanel("Start Time (HH:MM):", timeField));
-        formPanel.add(Box.createVerticalStrut(20));
+        formPanel.add(Box.createVerticalStrut(25));
 
         JButton bookButton = new JButton("Book Slot");
         styleButton(bookButton, new Color(46, 204, 113));
@@ -57,7 +57,7 @@ public class SelfBookingPage extends JFrame {
         JPanel footer = new JPanel();
         footer.setBackground(new Color(189, 195, 199));
         JLabel credits = new JLabel("© 2025 TurfEase Project");
-        credits.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        credits.setFont(new Font("Segoe UI", Font.ITALIC, 14)); // slightly bigger
         footer.add(credits);
         add(footer, BorderLayout.SOUTH);
 
@@ -128,19 +128,20 @@ public class SelfBookingPage extends JFrame {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(236, 240, 241));
         JLabel label = new JLabel(labelText);
-        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        field.setPreferredSize(new Dimension(200, 30));
+        label.setFont(new Font("Segoe UI", Font.BOLD, 16)); // bigger & bolder
+        field.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        field.setPreferredSize(new Dimension(250, 35)); // bigger input
         panel.add(label, BorderLayout.NORTH);
         panel.add(field, BorderLayout.CENTER);
         return panel;
     }
 
     private void styleButton(JButton btn, Color bgColor) {
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 18)); // bigger button text
         btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
-        btn.setPreferredSize(new Dimension(200, 40));
+        btn.setPreferredSize(new Dimension(220, 45)); // bigger button
     }
 
     private int getAdminTurfId(Connection conn) throws SQLException {
