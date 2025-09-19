@@ -5,20 +5,20 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
 
-public class ViewTurfsPage {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Available Turfs - TurfEase");
-        frame.setSize(600, 400);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
+public class ViewTurfsPage extends JFrame {
+    public ViewTurfsPage() {
+        setTitle("Available Turfs - TurfEase");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
         String[] columnNames = {"Turf ID", "Turf Name", "Location", "Price per Hour"};
         DefaultTableModel model = new DefaultTableModel(columnNames, 0);
         JTable table = new JTable(model);
-        frame.add(new JScrollPane(table), BorderLayout.CENTER);
+        add(new JScrollPane(table), BorderLayout.CENTER);
 
         JButton viewSlots = new JButton("View Slots");
-        frame.add(viewSlots, BorderLayout.SOUTH);
+        add(viewSlots, BorderLayout.SOUTH);
 
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/turfease_db", "root", "hadi123");
@@ -34,21 +34,25 @@ public class ViewTurfsPage {
                 });
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(frame, "Database Error: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
         }
 
         viewSlots.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(frame, "Please select a turf first!");
+                JOptionPane.showMessageDialog(this, "Please select a turf first!");
                 return;
             }
             int turfId = (int) model.getValueAt(row, 0);
             String turfName = model.getValueAt(row, 1).toString();
-            frame.dispose();
-            SlotsPage.main(new String[]{String.valueOf(turfId), turfName});
+            dispose();
+            new SlotsPage(turfId, turfName);
         });
 
-        frame.setVisible(true);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(ViewTurfsPage::new);
     }
 }

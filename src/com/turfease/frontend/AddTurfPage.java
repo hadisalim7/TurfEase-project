@@ -4,12 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.*;
 
-public class AddTurfPage {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Add New Turf");
-        frame.setSize(400, 350);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLayout(new GridLayout(6, 2, 10, 10));
+public class AddTurfPage extends JFrame {
+    public AddTurfPage() {
+        setTitle("Add New Turf");
+        setSize(400, 350);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new GridLayout(6, 2, 10, 10));
 
         JTextField nameField = new JTextField();
         JTextField locationField = new JTextField();
@@ -17,39 +17,36 @@ public class AddTurfPage {
         JTextField imageField = new JTextField();
         JButton addButton = new JButton("Add Turf");
 
-        frame.add(new JLabel("Turf Name:"));
-        frame.add(nameField);
-        frame.add(new JLabel("Location:"));
-        frame.add(locationField);
-        frame.add(new JLabel("Price per Hour:"));
-        frame.add(priceField);
-        frame.add(new JLabel("Image URL/Path:"));
-        frame.add(imageField);
-        frame.add(new JLabel());
-        frame.add(addButton);
+        add(new JLabel("Turf Name:"));   add(nameField);
+        add(new JLabel("Location:"));    add(locationField);
+        add(new JLabel("Price per Hour:")); add(priceField);
+        add(new JLabel("Image URL/Path:")); add(imageField);
+        add(new JLabel()); add(addButton);
 
         String url = "jdbc:mysql://localhost:3306/turfease_db";
         String username = "root";
         String password = "hadi123";
 
-        // Check if admin already added a turf
-        try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            String checkQuery = "SELECT COUNT(*) FROM turfs WHERE admin_id = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-            checkStmt.setInt(1, LoggedInUser.getUserId());
-            ResultSet rs = checkStmt.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(frame, "You already added a turf. Only one turf is allowed.");
-                frame.dispose();
-                return;
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
-        }
-
+        // Action when button clicked
         addButton.addActionListener(e -> {
             try (Connection conn = DriverManager.getConnection(url, username, password)) {
-                String query = "INSERT INTO turfs (turf_name, location, price_per_hour, photo_url, admin_id) VALUES (?, ?, ?, ?, ?)";
+                // Check if admin already has a turf
+                String checkQuery = "SELECT COUNT(*) FROM turfs WHERE admin_id = ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                checkStmt.setInt(1, LoggedInUser.getUserId());
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Show message, but don't close window
+                    JOptionPane.showMessageDialog(this,
+                            "Sorry, you can't add turf. Each admin is allowed only one turf.",
+                            "Warning", JOptionPane.WARNING_MESSAGE);
+                    return; // stop here
+                }
+
+                // Insert new turf
+                String query = "INSERT INTO turfs (turf_name, location, price_per_hour, photo_url, admin_id) " +
+                               "VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setString(1, nameField.getText());
                 stmt.setString(2, locationField.getText());
@@ -58,13 +55,17 @@ public class AddTurfPage {
                 stmt.setInt(5, LoggedInUser.getUserId());
 
                 stmt.executeUpdate();
-                JOptionPane.showMessageDialog(frame, "Turf added successfully!");
-                frame.dispose();
+                JOptionPane.showMessageDialog(this, "Turf added successfully!");
+                dispose(); // close only if added
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Error: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
         });
 
-        frame.setVisible(true);
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(AddTurfPage::new);
     }
 }
