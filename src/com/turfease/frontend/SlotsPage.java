@@ -2,6 +2,7 @@ package com.turfease.frontend;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,7 +14,7 @@ public class SlotsPage extends JFrame {
 
     public SlotsPage(int turfId, String turfName) {
         setTitle("Slots for " + turfName);
-        setSize(700, 500);
+        setSize(750, 550);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 10));
@@ -51,7 +52,7 @@ public class SlotsPage extends JFrame {
         add(topPanel, BorderLayout.NORTH);
 
         // ===== Slots panel =====
-        JPanel slotPanel = new JPanel(new GridLayout(3, 4, 15, 15));
+        JPanel slotPanel = new JPanel(new GridLayout(3, 4, 20, 20));
         slotPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         slotPanel.setBackground(new Color(236, 240, 241));
         add(slotPanel, BorderLayout.CENTER);
@@ -102,19 +103,35 @@ public class SlotsPage extends JFrame {
 
         for (int hour = 9; hour < 21; hour++) {
             LocalTime slotTime = LocalTime.of(hour, 0);
-            JButton slotButton = new JButton(slotTime.toString());
+            String slotText = slotTime + " - " + slotTime.plusHours(1);
+            JButton slotButton = new JButton(slotText);
             slotButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
             slotButton.setOpaque(true);
-            slotButton.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
             slotButton.setFocusPainted(false);
 
             if (bookedSlots.contains(slotTime)) {
-                slotButton.setBackground(new Color(231, 76, 60)); // red
+                // Booked slot style
+                slotButton.setBackground(new Color(231, 76, 60));
                 slotButton.setEnabled(false);
                 slotButton.setForeground(Color.WHITE);
+                slotButton.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
             } else {
-                slotButton.setBackground(new Color(46, 204, 113)); // green
+                // Available slot style
+                slotButton.setBackground(new Color(46, 204, 113));
                 slotButton.setForeground(Color.WHITE);
+                slotButton.setBorder(BorderFactory.createRaisedBevelBorder());
+
+                // Hover effect
+                slotButton.addMouseListener(new MouseAdapter() {
+                    public void mouseEntered(MouseEvent evt) {
+                        slotButton.setBackground(new Color(39, 174, 96));
+                    }
+
+                    public void mouseExited(MouseEvent evt) {
+                        slotButton.setBackground(new Color(46, 204, 113));
+                    }
+                });
+
                 slotButton.addActionListener(e -> {
                     if (selectedDate.equals(LocalDate.now()) && slotTime.isBefore(LocalTime.now())) {
                         JOptionPane.showMessageDialog(slotPanel, "Cannot book past time slots!");
@@ -122,7 +139,7 @@ public class SlotsPage extends JFrame {
                     }
 
                     int confirm = JOptionPane.showConfirmDialog(slotPanel,
-                            "Book this slot at " + slotTime + " on " + dateText + "?",
+                            "Book this slot at " + slotText + " on " + dateText + "?",
                             "Confirm Booking", JOptionPane.YES_NO_OPTION);
 
                     if (confirm == JOptionPane.YES_OPTION) {
