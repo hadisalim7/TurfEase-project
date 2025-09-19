@@ -5,6 +5,7 @@ import java.awt.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,8 @@ public class SlotsPage extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(0, 10));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         // ===== Header =====
         JPanel header = new JPanel();
@@ -31,9 +34,9 @@ public class SlotsPage extends JFrame {
         topPanel.setBackground(new Color(236, 240, 241));
         topPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 10));
 
-        JLabel dateLabel = new JLabel("Select Date (YYYY-MM-DD):");
+        JLabel dateLabel = new JLabel("Select Date (DD-MM-YYYY):");
         dateLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        JTextField dateField = new JTextField(LocalDate.now().toString(), 10);
+        JTextField dateField = new JTextField(LocalDate.now().format(formatter), 10);
         dateField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
         JButton loadSlotsButton = new JButton("Load Slots");
@@ -54,23 +57,23 @@ public class SlotsPage extends JFrame {
         add(slotPanel, BorderLayout.CENTER);
 
         // Load initial slots
-        loadSlots(slotPanel, turfId, dateField.getText());
+        loadSlots(slotPanel, turfId, dateField.getText(), formatter);
 
         loadSlotsButton.addActionListener(e ->
-                loadSlots(slotPanel, turfId, dateField.getText())
+                loadSlots(slotPanel, turfId, dateField.getText(), formatter)
         );
 
         setVisible(true);
     }
 
-    private void loadSlots(JPanel slotPanel, int turfId, String dateText) {
+    private void loadSlots(JPanel slotPanel, int turfId, String dateText, DateTimeFormatter formatter) {
         slotPanel.removeAll();
 
         LocalDate selectedDate;
         try {
-            selectedDate = LocalDate.parse(dateText);
+            selectedDate = LocalDate.parse(dateText, formatter);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(slotPanel, "Invalid date format!");
+            JOptionPane.showMessageDialog(slotPanel, "Invalid date format! Use DD-MM-YYYY");
             return;
         }
 
@@ -88,7 +91,7 @@ public class SlotsPage extends JFrame {
             String query = "SELECT start_time FROM bookings WHERE turf_id=? AND booking_date=? AND status='booked'";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, turfId);
-            stmt.setDate(2, java.sql.Date.valueOf(dateText));
+            stmt.setDate(2, java.sql.Date.valueOf(selectedDate));
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 bookedSlots.add(rs.getTime("start_time").toLocalTime());
@@ -128,13 +131,13 @@ public class SlotsPage extends JFrame {
                             PreparedStatement ps = conn.prepareStatement(insert);
                             ps.setInt(1, LoggedInUser.getUserId());
                             ps.setInt(2, turfId);
-                            ps.setDate(3, java.sql.Date.valueOf(dateText));
+                            ps.setDate(3, java.sql.Date.valueOf(selectedDate));
                             ps.setTime(4, java.sql.Time.valueOf(slotTime));
                             ps.setTime(5, java.sql.Time.valueOf(slotTime.plusHours(1)));
                             ps.setString(6, "booked");
                             ps.executeUpdate();
                             JOptionPane.showMessageDialog(slotPanel, "Booking Confirmed!");
-                            loadSlots(slotPanel, turfId, dateText);
+                            loadSlots(slotPanel, turfId, dateText, formatter);
                         } catch (Exception ex2) {
                             JOptionPane.showMessageDialog(slotPanel, "Booking Failed: " + ex2.getMessage());
                         }
