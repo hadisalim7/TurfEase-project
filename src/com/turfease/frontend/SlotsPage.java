@@ -9,23 +9,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SlotsPage extends JFrame {
+
     public SlotsPage(int turfId, String turfName) {
         setTitle("Slots for " + turfName);
-        setSize(650, 450);
+        setSize(700, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(0, 10));
 
-        JPanel topPanel = new JPanel(new FlowLayout());
-        JTextField dateField = new JTextField(LocalDate.now().toString(), 10); // default to today
+        // ===== Header =====
+        JPanel header = new JPanel();
+        header.setBackground(new Color(34, 153, 84));
+        JLabel title = new JLabel("Available Slots for " + turfName);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setForeground(Color.WHITE);
+        header.add(title);
+        add(header, BorderLayout.NORTH);
+
+        // ===== Top panel for date selection =====
+        JPanel topPanel = new JPanel();
+        topPanel.setBackground(new Color(236, 240, 241));
+        topPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 10));
+
+        JLabel dateLabel = new JLabel("Select Date (YYYY-MM-DD):");
+        dateLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        JTextField dateField = new JTextField(LocalDate.now().toString(), 10);
+        dateField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+
         JButton loadSlotsButton = new JButton("Load Slots");
-        topPanel.add(new JLabel("Select Date (YYYY-MM-DD):"));
+        loadSlotsButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        loadSlotsButton.setBackground(new Color(46, 204, 113));
+        loadSlotsButton.setForeground(Color.WHITE);
+        loadSlotsButton.setFocusPainted(false);
+
+        topPanel.add(dateLabel);
         topPanel.add(dateField);
         topPanel.add(loadSlotsButton);
         add(topPanel, BorderLayout.NORTH);
 
-        JPanel slotPanel = new JPanel(new GridLayout(3, 4, 10, 10));
+        // ===== Slots panel =====
+        JPanel slotPanel = new JPanel(new GridLayout(3, 4, 15, 15));
+        slotPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        slotPanel.setBackground(new Color(236, 240, 241));
         add(slotPanel, BorderLayout.CENTER);
 
+        // Load initial slots
         loadSlots(slotPanel, turfId, dateField.getText());
 
         loadSlotsButton.addActionListener(e ->
@@ -46,14 +74,12 @@ public class SlotsPage extends JFrame {
             return;
         }
 
-        // Prevent past dates
         if (selectedDate.isBefore(LocalDate.now())) {
             JOptionPane.showMessageDialog(slotPanel, "Cannot view slots for past dates!");
             return;
         }
 
         List<LocalTime> bookedSlots = new ArrayList<>();
-
         String url = "jdbc:mysql://localhost:3306/turfease_db";
         String username = "root";
         String password = "hadi123";
@@ -74,14 +100,19 @@ public class SlotsPage extends JFrame {
         for (int hour = 9; hour < 21; hour++) {
             LocalTime slotTime = LocalTime.of(hour, 0);
             JButton slotButton = new JButton(slotTime.toString());
+            slotButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            slotButton.setOpaque(true);
+            slotButton.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+            slotButton.setFocusPainted(false);
 
             if (bookedSlots.contains(slotTime)) {
-                slotButton.setBackground(Color.RED);
+                slotButton.setBackground(new Color(231, 76, 60)); // red
                 slotButton.setEnabled(false);
+                slotButton.setForeground(Color.WHITE);
             } else {
-                slotButton.setBackground(Color.GREEN);
+                slotButton.setBackground(new Color(46, 204, 113)); // green
+                slotButton.setForeground(Color.WHITE);
                 slotButton.addActionListener(e -> {
-                    // Prevent booking past slots for today
                     if (selectedDate.equals(LocalDate.now()) && slotTime.isBefore(LocalTime.now())) {
                         JOptionPane.showMessageDialog(slotPanel, "Cannot book past time slots!");
                         return;
