@@ -7,25 +7,61 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class SelfBookingPage extends JFrame {
+
     public SelfBookingPage() {
         setTitle("Self Booking - TurfEase");
-        setSize(400, 350);
+        setSize(450, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new GridLayout(6, 2, 10, 10));
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(0, 10));
+
+        // ===== Header =====
+        JPanel header = new JPanel();
+        header.setBackground(new Color(34, 153, 84));
+        JLabel title = new JLabel("📅 Self Booking");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        title.setForeground(Color.WHITE);
+        header.add(title);
+        add(header, BorderLayout.NORTH);
+
+        // ===== Form Panel with vertical spacing =====
+        JPanel formPanel = new JPanel();
+        formPanel.setBackground(new Color(236, 240, 241));
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         JTextField nameField = new JTextField();
         JTextField phoneField = new JTextField();
         JTextField dateField = new JTextField(LocalDate.now().toString());
-        JTextField timeField = new JTextField("09:00"); // default
+        JTextField timeField = new JTextField("09:00");
+
+        formPanel.add(createFieldPanel("Customer Name:", nameField));
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(createFieldPanel("Phone:", phoneField));
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(createFieldPanel("Date (YYYY-MM-DD):", dateField));
+        formPanel.add(Box.createVerticalStrut(10));
+        formPanel.add(createFieldPanel("Start Time (HH:MM):", timeField));
+        formPanel.add(Box.createVerticalStrut(20));
 
         JButton bookButton = new JButton("Book Slot");
+        styleButton(bookButton, new Color(46, 204, 113));
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(236, 240, 241));
+        buttonPanel.add(bookButton);
+        formPanel.add(buttonPanel);
 
-        add(new JLabel("Customer Name:")); add(nameField);
-        add(new JLabel("Phone:")); add(phoneField);
-        add(new JLabel("Date (YYYY-MM-DD):")); add(dateField);
-        add(new JLabel("Start Time (HH:MM):")); add(timeField);
-        add(new JLabel()); add(bookButton);
+        add(formPanel, BorderLayout.CENTER);
 
+        // ===== Footer =====
+        JPanel footer = new JPanel();
+        footer.setBackground(new Color(189, 195, 199));
+        JLabel credits = new JLabel("© 2025 TurfEase Project");
+        credits.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        footer.add(credits);
+        add(footer, BorderLayout.SOUTH);
+
+        // ===== DB & Action =====
         String url = "jdbc:mysql://localhost:3306/turfease_db";
         String username = "root";
         String password = "hadi123";
@@ -52,7 +88,6 @@ public class SelfBookingPage extends JFrame {
                 LocalTime startTime = LocalTime.parse(time);
                 LocalTime endTime = startTime.plusHours(1);
 
-                // --------- Availability Check ---------
                 String checkQuery = "SELECT COUNT(*) FROM bookings " +
                         "WHERE turf_id=? AND booking_date=? " +
                         "AND start_time < ? AND end_time > ? " +
@@ -69,7 +104,6 @@ public class SelfBookingPage extends JFrame {
                     return;
                 }
 
-                // --------- Insert Booking ---------
                 String query = "INSERT INTO bookings (user_id, turf_id, booking_date, start_time, end_time, status) VALUES (?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setInt(1, userId);
@@ -90,8 +124,27 @@ public class SelfBookingPage extends JFrame {
         setVisible(true);
     }
 
+    private JPanel createFieldPanel(String labelText, JTextField field) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(236, 240, 241));
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        field.setPreferredSize(new Dimension(200, 30));
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(field, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private void styleButton(JButton btn, Color bgColor) {
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setBackground(bgColor);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setPreferredSize(new Dimension(200, 40));
+    }
+
     private int getAdminTurfId(Connection conn) throws SQLException {
-        String query = "SELECT turf_id FROM turfs WHERE admin_id=? LIMIT 1"; // pick first turf
+        String query = "SELECT turf_id FROM turfs WHERE admin_id=? LIMIT 1";
         PreparedStatement stmt = conn.prepareStatement(query);
         stmt.setInt(1, LoggedInUser.getUserId());
         ResultSet rs = stmt.executeQuery();
@@ -103,9 +156,8 @@ public class SelfBookingPage extends JFrame {
         PreparedStatement stmt = conn.prepareStatement(check);
         stmt.setString(1, phone);
         ResultSet rs = stmt.executeQuery();
-        if (rs.next()) {
-            return rs.getInt("user_id");
-        } else {
+        if (rs.next()) return rs.getInt("user_id");
+        else {
             String insert = "INSERT INTO users (name, phone) VALUES (?, ?)";
             PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, name);
