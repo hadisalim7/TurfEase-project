@@ -70,6 +70,9 @@ public class HomePage extends JFrame {
             dispose();
             new RegisterPage(); // styled register
         });
+         loginButton.setFocusPainted(false); // removes focus border
+         loginButton.setContentAreaFilled(true); // make sure background fills
+         loginButton.setOpaque(true);           // ensure background shows correctly
 
         setVisible(true);
     }
