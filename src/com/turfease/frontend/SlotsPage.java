@@ -10,11 +10,9 @@ import java.util.List;
 
 public class SlotsPage extends JFrame {
     private int turfId;
-    private String turfName;
 
     public SlotsPage(int turfId, String turfName) {
         this.turfId = turfId;
-        this.turfName = turfName;
 
         setTitle("Slots for " + turfName);
         setSize(700, 500);
@@ -45,11 +43,11 @@ public class SlotsPage extends JFrame {
         add(slotPanel, BorderLayout.CENTER);
 
         // Load slots initially
-        loadSlots(slotPanel, turfId, dateField.getText());
+        loadSlots(slotPanel, this.turfId, dateField.getText());
 
         // Reload when button clicked
         loadSlotsButton.addActionListener(e ->
-                loadSlots(slotPanel, turfId, dateField.getText())
+                loadSlots(slotPanel, this.turfId, dateField.getText())
         );
 
         setVisible(true);
@@ -92,7 +90,7 @@ public class SlotsPage extends JFrame {
             slotButton.setBorderPainted(false);
 
             boolean isPast = selectedDate.isBefore(today) ||
-                             (selectedDate.isEqual(today) && slotTime.isBefore(now));
+                    (selectedDate.isEqual(today) && slotTime.isBefore(now));
 
             if (isPast) {
                 // Already over
