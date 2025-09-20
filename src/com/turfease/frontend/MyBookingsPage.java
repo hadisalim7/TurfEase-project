@@ -13,7 +13,7 @@ public class MyBookingsPage extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // 🌟 Header
+        // Header
         JPanel header = new JPanel();
         header.setBackground(new Color(34, 139, 34));
         JLabel title = new JLabel("My Bookings");
@@ -22,7 +22,7 @@ public class MyBookingsPage extends JFrame {
         header.add(title);
         add(header, BorderLayout.NORTH);
 
-        // 🌟 Table with custom look
+        // Table with custom look
         String[] columns = {"Booking ID", "Turf", "Date", "Start", "End", "Status"};
         DefaultTableModel model = new DefaultTableModel(columns, 0);
         JTable table = new JTable(model);
@@ -36,7 +36,7 @@ public class MyBookingsPage extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(scrollPane, BorderLayout.CENTER);
 
-        // 🌟 Footer panel with cancel button
+        //  Footer panel with cancel button
         JPanel footer = new JPanel();
         footer.setBackground(new Color(245, 245, 245));
 
@@ -97,7 +97,7 @@ public class MyBookingsPage extends JFrame {
             }
         });
 
-        // 🔙 Back on Minimize → Return to Dashboard
+        // Back on Minimize → Return to Dashboard
         addWindowStateListener(e -> {
             if ((e.getNewState() & Frame.ICONIFIED) == Frame.ICONIFIED) { // minimized
                 dispose();
