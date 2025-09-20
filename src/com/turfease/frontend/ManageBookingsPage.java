@@ -5,7 +5,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
-import java.time.LocalTime;
 
 public class ManageBookingsPage extends JFrame {
 
@@ -19,7 +18,7 @@ public class ManageBookingsPage extends JFrame {
         // ===== Header =====
         JPanel header = new JPanel();
         header.setBackground(new Color(34, 153, 84));
-        JLabel title = new JLabel("📖 Manage Bookings");
+        JLabel title = new JLabel("Manage Bookings");
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         title.setForeground(Color.WHITE);
         header.add(title);
