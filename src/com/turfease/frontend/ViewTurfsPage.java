@@ -12,7 +12,7 @@ public class ViewTurfsPage extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // 🌟 Header
+        // Header
         JPanel header = new JPanel();
         header.setBackground(new Color(34, 139, 34));
         JLabel title = new JLabel("Available Turfs");
@@ -21,7 +21,7 @@ public class ViewTurfsPage extends JFrame {
         header.add(title);
         add(header, BorderLayout.NORTH);
 
-        // 🌟 Scrollable turf cards
+        //  Scrollable turf cards
         JPanel turfPanel = new JPanel(new GridLayout(0, 2, 15, 15)); // 2 columns
         turfPanel.setBackground(new Color(245, 245, 245));
         JScrollPane scrollPane = new JScrollPane(turfPanel);
@@ -43,7 +43,7 @@ public class ViewTurfsPage extends JFrame {
                 double price = rs.getDouble("price_per_hour");
                 String photo = rs.getString("photo_url");
 
-                // 🌟 Card panel
+                // Card panel
                 JPanel card = new JPanel(new BorderLayout());
                 card.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
                 card.setBackground(Color.WHITE);
