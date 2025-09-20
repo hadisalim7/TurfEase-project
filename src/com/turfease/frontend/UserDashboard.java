@@ -33,9 +33,9 @@ public class UserDashboard extends JFrame {
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Buttons
-        JButton viewTurfs = new JButton("⚽ View Turfs");
-        JButton myBookings = new JButton("📅 My Bookings");
-        JButton logout = new JButton("🚪 Logout");
+        JButton viewTurfs = new JButton("View Turfs");
+        JButton myBookings = new JButton("My Bookings");
+        JButton logout = new JButton("Logout");
 
         Font btnFont = new Font("Segoe UI", Font.BOLD, 16);
         for (JButton btn : new JButton[]{viewTurfs, myBookings, logout}) {
