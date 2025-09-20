@@ -2,7 +2,6 @@ package com.turfease.frontend;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.sql.*;
 
@@ -12,60 +11,53 @@ public class MyBookingsPage extends JFrame {
         setSize(700, 450);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        // Background with turf image
-        JPanel backgroundPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                ImageIcon bg = new ImageIcon("resources/turf1.jpg");
-                g.drawImage(bg.getImage(), 0, 0, getWidth(), getHeight(), this);
-            }
-        };
-        backgroundPanel.setLayout(new BorderLayout());
-
-        // Transparent card panel
-        JPanel cardPanel = new JPanel(new BorderLayout(10, 10));
-        cardPanel.setBackground(new Color(255, 255, 255, 220));
-        cardPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        // Table setup
-        String[] columns = {"Booking ID", "Turf", "Date", "Start", "End", "Status"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false; // disable editing
-            }
-        };
-        JTable table = new JTable(model);
-        table.setRowHeight(28);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-        JTableHeader header = table.getTableHeader();
-        header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        // 🌟 Header
+        JPanel header = new JPanel();
         header.setBackground(new Color(34, 139, 34));
-        header.setForeground(Color.WHITE);
+        JLabel title = new JLabel("My Bookings");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setForeground(Color.WHITE);
+        header.add(title);
+        add(header, BorderLayout.NORTH);
+
+        // 🌟 Table with custom look
+        String[] columns = {"Booking ID", "Turf", "Date", "Start", "End", "Status"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        JTable table = new JTable(model);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setRowHeight(28);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 15));
+        table.getTableHeader().setBackground(new Color(46, 139, 87));
+        table.getTableHeader().setForeground(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        cardPanel.add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        add(scrollPane, BorderLayout.CENTER);
 
-        // Cancel button
-        JButton cancelBooking = new JButton("❌ Cancel Selected Booking");
-        cancelBooking.setBackground(new Color(220, 53, 69));
+        // 🌟 Footer panel with cancel button
+        JPanel footer = new JPanel();
+        footer.setBackground(new Color(245, 245, 245));
+
+        JButton cancelBooking = new JButton("Cancel Selected Booking");
+        cancelBooking.setBackground(new Color(220, 20, 60));
         cancelBooking.setForeground(Color.WHITE);
         cancelBooking.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        cancelBooking.setFocusPainted(false);
-        cardPanel.add(cancelBooking, BorderLayout.SOUTH);
 
-        // Load bookings from DB
+        footer.add(cancelBooking);
+        add(footer, BorderLayout.SOUTH);
+
+        // Database connection
         String url = "jdbc:mysql://localhost:3306/turfease_db";
         String username = "root";
         String password = "hadi123";
 
+        // Load bookings
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             String query = "SELECT b.booking_id, t.turf_name, b.booking_date, b.start_time, b.end_time, b.status " +
-                    "FROM bookings b JOIN turfs t ON b.turf_id = t.turf_id " +
-                    "WHERE b.user_id = ?";
+                           "FROM bookings b JOIN turfs t ON b.turf_id = t.turf_id " +
+                           "WHERE b.user_id = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
             stmt.setInt(1, LoggedInUser.getUserId());
             ResultSet rs = stmt.executeQuery();
@@ -83,7 +75,7 @@ public class MyBookingsPage extends JFrame {
             JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
         }
 
-        // Cancel booking action
+        // Cancel button action
         cancelBooking.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row == -1) {
@@ -105,8 +97,13 @@ public class MyBookingsPage extends JFrame {
             }
         });
 
-        backgroundPanel.add(cardPanel, BorderLayout.CENTER);
-        add(backgroundPanel);
+        // 🔙 Back on Minimize → Return to Dashboard
+        addWindowStateListener(e -> {
+            if ((e.getNewState() & Frame.ICONIFIED) == Frame.ICONIFIED) { // minimized
+                dispose();
+                new UserDashboard();
+            }
+        });
 
         setVisible(true);
     }
