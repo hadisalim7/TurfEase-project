@@ -10,10 +10,10 @@ public class AdminDashboard extends JFrame {
         setSize(700, 450);
         setLocationRelativeTo(null);
 
-        // ✅ Don't kill the app when closing this window
+        // Don't kill the app when closing this window
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // ✅ If minimized → go back to HomePage
+        //  If minimized → go back to HomePage
         addWindowStateListener(e -> {
             if ((e.getNewState() & Frame.ICONIFIED) == Frame.ICONIFIED) {
                 dispose(); 
