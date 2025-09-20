@@ -119,7 +119,7 @@ public class AddTurfPage extends JFrame {
                 stmt.setInt(5, LoggedInUser.getUserId());
 
                 stmt.executeUpdate();
-                JOptionPane.showMessageDialog(this, "✅ Turf added successfully!");
+                JOptionPane.showMessageDialog(this, " Turf added successfully!");
                 dispose();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
