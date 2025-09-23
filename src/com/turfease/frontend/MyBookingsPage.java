@@ -6,26 +6,38 @@ import java.awt.*;
 import java.sql.*;
 
 public class MyBookingsPage extends JFrame {
+    private DefaultTableModel model;
+    private JTable table;
+    private JComboBox<String> filterBox;
+
     public MyBookingsPage() {
         setTitle("My Bookings - TurfEase");
-        setSize(700, 450);
+        setSize(750, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Header
-        JPanel header = new JPanel();
+        // ===== Header =====
+        JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(34, 139, 34));
-        JLabel title = new JLabel("My Bookings");
+
+        JLabel title = new JLabel("My Bookings", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 24));
         title.setForeground(Color.WHITE);
-        header.add(title);
+        header.add(title, BorderLayout.CENTER);
+
+        // Filter dropdown
+        String[] filters = {"All", "Upcoming", "Past", "Cancelled"};
+        filterBox = new JComboBox<>(filters);
+        filterBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        header.add(filterBox, BorderLayout.EAST);
+
         add(header, BorderLayout.NORTH);
 
-        // Table with custom look
+        // ===== Table =====
         String[] columns = {"Booking ID", "Turf", "Date", "Start", "End", "Status"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
-        JTable table = new JTable(model);
+        model = new DefaultTableModel(columns, 0);
+        table = new JTable(model);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.setRowHeight(28);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 15));
@@ -36,7 +48,7 @@ public class MyBookingsPage extends JFrame {
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(scrollPane, BorderLayout.CENTER);
 
-        //  Footer panel with cancel button
+        // ===== Footer =====
         JPanel footer = new JPanel();
         footer.setBackground(new Color(245, 245, 245));
 
@@ -48,34 +60,12 @@ public class MyBookingsPage extends JFrame {
         footer.add(cancelBooking);
         add(footer, BorderLayout.SOUTH);
 
-        // Database connection
-        String url = "jdbc:mysql://localhost:3306/turfease_db";
-        String username = "root";
-        String password = "hadi123";
+        // ===== Load Bookings Initially =====
+        loadBookings("All");
 
-        // Load bookings
-        try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            String query = "SELECT b.booking_id, t.turf_name, b.booking_date, b.start_time, b.end_time, b.status " +
-                           "FROM bookings b JOIN turfs t ON b.turf_id = t.turf_id " +
-                           "WHERE b.user_id = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setInt(1, LoggedInUser.getUserId());
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                model.addRow(new Object[]{
-                        rs.getInt("booking_id"),
-                        rs.getString("turf_name"),
-                        rs.getDate("booking_date"),
-                        rs.getTime("start_time"),
-                        rs.getTime("end_time"),
-                        rs.getString("status")
-                });
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
-        }
+        // ===== Actions =====
+        filterBox.addActionListener(e -> loadBookings(filterBox.getSelectedItem().toString()));
 
-        // Cancel button action
         cancelBooking.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row == -1) {
@@ -83,6 +73,10 @@ public class MyBookingsPage extends JFrame {
                 return;
             }
             int bookingId = (int) model.getValueAt(row, 0);
+
+            String url = "jdbc:mysql://localhost:3306/turfease_db";
+            String username = "root";
+            String password = "hadi123";
 
             try (Connection conn = DriverManager.getConnection(url, username, password)) {
                 String update = "UPDATE bookings SET status='cancelled' WHERE booking_id=?";
@@ -106,6 +100,46 @@ public class MyBookingsPage extends JFrame {
         });
 
         setVisible(true);
+    }
+
+    private void loadBookings(String filter) {
+        model.setRowCount(0); // clear table
+        String url = "jdbc:mysql://localhost:3306/turfease_db";
+        String username = "root";
+        String password = "hadi123";
+
+        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+            String baseQuery = "SELECT b.booking_id, t.turf_name, b.booking_date, b.start_time, b.end_time, b.status " +
+                               "FROM bookings b JOIN turfs t ON b.turf_id = t.turf_id " +
+                               "WHERE b.user_id = ? ";
+
+            // Apply filter
+            if (filter.equals("Upcoming")) {
+                baseQuery += "AND b.booking_date >= CURDATE() AND b.status='booked' ";
+            } else if (filter.equals("Past")) {
+                baseQuery += "AND b.booking_date < CURDATE() ";
+            } else if (filter.equals("Cancelled")) {
+                baseQuery += "AND b.status='cancelled' ";
+            }
+
+            baseQuery += "ORDER BY b.booking_date DESC, b.start_time DESC, b.booking_id DESC"; // latest first
+
+            PreparedStatement stmt = conn.prepareStatement(baseQuery);
+            stmt.setInt(1, LoggedInUser.getUserId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getInt("booking_id"),
+                        rs.getString("turf_name"),
+                        rs.getDate("booking_date"),
+                        rs.getTime("start_time"),
+                        rs.getTime("end_time"),
+                        rs.getString("status")
+                });
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());
+        }
     }
 
     public static void main(String[] args) {
