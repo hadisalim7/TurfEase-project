@@ -90,6 +90,10 @@ public class ViewTurfsPage extends JFrame {
                 card.add(bookButton, BorderLayout.SOUTH);
 
                 turfPanel.add(card);
+                bookButton.setFocusPainted(false); // removes focus border
+         bookButton.setContentAreaFilled(true); // make sure background fills
+         bookButton.setOpaque(true);           // ensure background shows correctly
+
             }
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Database Error: " + e.getMessage());

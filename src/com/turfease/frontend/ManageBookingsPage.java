@@ -25,7 +25,7 @@ public class ManageBookingsPage extends JFrame {
         add(header, BorderLayout.NORTH);
 
         // ===== Table =====
-        String[] columnNames = {"Booking ID", "Name", "Phone", "Turf Name", "Date", "Start", "End", "Status"};
+        String[] columnNames = {"Booking ID", "Name", "Phone", "Turf ID", "Turf Name", "Date", "Start", "End", "Status"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         JTable bookingsTable = new JTable(tableModel);
         bookingsTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -68,7 +68,7 @@ public class ManageBookingsPage extends JFrame {
 
         // Load bookings
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            String query = "SELECT b.booking_id, u.name, u.phone, t.turf_name, b.booking_date, " +
+            String query = "SELECT b.booking_id, u.name, u.phone, t.turf_id, t.turf_name, b.booking_date, " +
                     "b.start_time, b.end_time, b.status " +
                     "FROM bookings b " +
                     "JOIN turfs t ON b.turf_id = t.turf_id " +
@@ -83,6 +83,7 @@ public class ManageBookingsPage extends JFrame {
                         rs.getInt("booking_id"),
                         rs.getString("name"),
                         rs.getString("phone"),
+                        rs.getInt("turf_id"),
                         rs.getString("turf_name"),
                         rs.getDate("booking_date"),
                         rs.getTime("start_time"),
@@ -102,7 +103,7 @@ public class ManageBookingsPage extends JFrame {
                 return;
             }
             int bookingId = (int) tableModel.getValueAt(row, 0);
-            String currentStatus = tableModel.getValueAt(row, 7).toString();
+            String currentStatus = tableModel.getValueAt(row, 8).toString();
 
             if ("cancelled".equalsIgnoreCase(currentStatus)) {
                 JOptionPane.showMessageDialog(this, "Already cancelled.");
@@ -117,7 +118,7 @@ public class ManageBookingsPage extends JFrame {
                     PreparedStatement ps = conn.prepareStatement(update);
                     ps.setInt(1, bookingId);
                     ps.executeUpdate();
-                    tableModel.setValueAt("cancelled", row, 7);
+                    tableModel.setValueAt("cancelled", row, 8);
                     JOptionPane.showMessageDialog(this, "Booking Cancelled!");
                 } catch (Exception ex1) {
                     JOptionPane.showMessageDialog(this, "Error: " + ex1.getMessage());
@@ -134,25 +135,42 @@ public class ManageBookingsPage extends JFrame {
             }
 
             int bookingId = (int) tableModel.getValueAt(row, 0);
+            int turfId = (int) tableModel.getValueAt(row, 3);
             String newDate = JOptionPane.showInputDialog(this, "New Date (YYYY-MM-DD):",
-                    tableModel.getValueAt(row, 4).toString());
+                    tableModel.getValueAt(row, 5).toString());
             String newTime = JOptionPane.showInputDialog(this, "New Start Time (HH:MM):",
-                    tableModel.getValueAt(row, 5).toString().substring(0, 5));
+                    tableModel.getValueAt(row, 6).toString().substring(0, 5));
 
             if (newDate != null && newTime != null) {
                 try (Connection conn = DriverManager.getConnection(url, username, password)) {
+                    java.time.LocalTime start = java.time.LocalTime.parse(newTime);
+
+                    // ===== Check if the new slot is already booked =====
+                    String checkQuery = "SELECT COUNT(*) FROM bookings WHERE turf_id=? AND booking_date=? " +
+                            "AND start_time=? AND status='booked' AND booking_id<>?";
+                    PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+                    checkStmt.setInt(1, turfId);
+                    checkStmt.setDate(2, java.sql.Date.valueOf(newDate));
+                    checkStmt.setTime(3, java.sql.Time.valueOf(start));
+                    checkStmt.setInt(4, bookingId);
+                    ResultSet rs = checkStmt.executeQuery();
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        JOptionPane.showMessageDialog(this, "This slot is already booked! Choose another time.");
+                        return;
+                    }
+
+                    // ===== If slot free, update booking =====
                     String update = "UPDATE bookings SET booking_date=?, start_time=?, end_time=? WHERE booking_id=?";
                     PreparedStatement ps = conn.prepareStatement(update);
                     ps.setDate(1, java.sql.Date.valueOf(newDate));
-                    java.time.LocalTime start = java.time.LocalTime.parse(newTime);
                     ps.setTime(2, java.sql.Time.valueOf(start));
                     ps.setTime(3, java.sql.Time.valueOf(start.plusHours(1)));
                     ps.setInt(4, bookingId);
                     ps.executeUpdate();
 
-                    tableModel.setValueAt(java.sql.Date.valueOf(newDate), row, 4);
-                    tableModel.setValueAt(java.sql.Time.valueOf(start), row, 5);
-                    tableModel.setValueAt(java.sql.Time.valueOf(start.plusHours(1)), row, 6);
+                    tableModel.setValueAt(java.sql.Date.valueOf(newDate), row, 5);
+                    tableModel.setValueAt(java.sql.Time.valueOf(start), row, 6);
+                    tableModel.setValueAt(java.sql.Time.valueOf(start.plusHours(1)), row, 7);
 
                     JOptionPane.showMessageDialog(this, "Booking updated!");
                 } catch (Exception ex2) {
